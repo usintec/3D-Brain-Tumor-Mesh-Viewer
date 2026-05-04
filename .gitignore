@@ -1,0 +1,13 @@
+# Visual Studio
+.vs/
+*.VC.db
+*.VC.opendb
+
+# Build results
+Debug/
+Release/
+x64/
+x86/
+
+# CMake / OpenGL builds (if applicable)
+build/
