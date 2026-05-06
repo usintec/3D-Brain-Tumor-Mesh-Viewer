@@ -7,44 +7,39 @@ in vec3 FragPos;
 
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform int tumorClass;
 
-void main(){
+vec4 getTumorColor(int c)
+{
+    // RGBA (A = transparency)
+    if(c==1)return vec4(1.,0.,0.,1.);// ET (solid)
+    if(c==2)return vec4(1.,.5,0.,.6);// TC (semi)
+    if(c==3)return vec4(0.,.5,1.,.2);// WT (very transparent)
     
-    // ----------------------------
-    // 1. Normalize inputs
-    // ----------------------------
+    return vec4(1.);
+}
+
+void main()
+{
     vec3 norm=normalize(Normal);
-    vec3 viewDir=normalize(viewPos-FragPos);
+    
     vec3 lightDir=normalize(lightPos-FragPos);
-    
-    // ----------------------------
-    // 2. Basic Lighting (Phong)
-    // ----------------------------
     float diff=max(dot(norm,lightDir),0.);
-    float ambient=.35;
     
-    vec3 baseColor=vec3(.65,.65,.7);
-    vec3 lighting=baseColor*(ambient+diff*.8);
+    float ambient=.2;
     
-    // ----------------------------
-    // 3. Specular highlight
-    // ----------------------------
-    vec3 reflectDir=reflect(-lightDir,norm);
-    float spec=pow(max(dot(viewDir,reflectDir),0.),16.);
-    vec3 specColor=vec3(1.,1.,1.)*spec*.4;
+    vec4 base=getTumorColor(tumorClass);
     
-    // ----------------------------
-    // 4. Rim highlight (boundary enhancement)
-    // ----------------------------
-    float rim=1.-max(dot(norm,viewDir),0.);
-    rim=smoothstep(.3,1.,rim);
-    vec3 rimColor=vec3(.8,.85,1.)*rim*.15;
+    vec3 viewDir=normalize(viewPos-FragPos);
     
-    // ----------------------------
-    // 5. Final Output
-    // ----------------------------
-    vec3 finalColor=lighting+specColor+rimColor;
-    finalColor=clamp(finalColor,0.,1.);
+    // boundary enhancement (Fresnel)
+    float edge=pow(1.-max(dot(viewDir,norm),0.),2.);
     
-    FragColor=vec4(finalColor,1.);
+    vec3 color=(ambient+diff)*base.rgb;
+    
+    // stronger boundary for ET
+    if(tumorClass==1)
+    color+=edge*vec3(1.);
+    
+    FragColor=vec4(color,base.a);
 }
