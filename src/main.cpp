@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "Headers/Shader.h"
 #include "Headers/Mesh.h"
@@ -45,8 +46,8 @@ int main()
                       "wt.obj"});
 
     // Tumor core (tc)
-    tumors.push_back({ModelLoader::loadOBJ((projectRoot + "\\assets\\tc.obj").c_str()),
-                      "tc.obj"});
+    //tumors.push_back({ModelLoader::loadOBJ((projectRoot + "\\assets\\tc.obj").c_str()),
+      //                "tc.obj"});
 
     // Enhanced tumor (et)
     tumors.push_back({ModelLoader::loadOBJ((projectRoot + "\\assets\\et.obj").c_str()),
@@ -102,21 +103,27 @@ int main()
                        camera.position[1],
                        camera.position[2]);
 
-        // Draw each tumor mesh with its class (for transparency and color)
+        // Draw each tumor mesh in correct layering order: ET (innermost) -> TC -> WT -> background
         glDepthMask(GL_FALSE); // Disable depth writing for transparent objects
-        for (size_t i = 0; i < tumors.size(); ++i)
+        std::vector<std::string> renderOrder = {"et.obj", "tc.obj", "wt.obj", "tumor_mesh.obj"};
+        for (const auto &meshName : renderOrder)
         {
-            int tumorClass = 1; // default ET
-            if (tumors[i].name == "wt.obj")
-                tumorClass = 3; // WT
-            else if (tumors[i].name == "tc.obj")
-                tumorClass = 2; // TC
-            else if (tumors[i].name == "et.obj")
-                tumorClass = 1; // ET
-            // tumor_mesh.obj defaults to 1
+            auto it = std::find_if(tumors.begin(), tumors.end(),
+                                   [&meshName](const TumorMesh &t)
+                                   { return t.name == meshName; });
+            if (it != tumors.end())
+            {
+                int tumorClass = 0; // default tumor_mesh (grey background)
+                if (it->name == "wt.obj")
+                    tumorClass = 3; // WT (blue)
+                else if (it->name == "tc.obj")
+                    tumorClass = 2; // TC (orange)
+                else if (it->name == "et.obj")
+                    tumorClass = 1; // ET (red)
 
-            shader.setInt("tumorClass", tumorClass);
-            tumors[i].mesh.draw();
+                shader.setInt("tumorClass", tumorClass);
+                it->mesh.draw();
+            }
         }
         glDepthMask(GL_TRUE); // Re-enable depth writing
 
