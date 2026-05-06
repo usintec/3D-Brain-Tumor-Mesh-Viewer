@@ -3,127 +3,10 @@
 #include <sstream>
 #include <cmath>
 
-void computeNormals(std::vector<Vertex>& vertices) {
-
-    // initialize normals
-    for (auto& v : vertices) {
-        v.normal[0] = 0.0f;
-        v.normal[1] = 0.0f;
-        v.normal[2] = 0.0f;
-    }
-
-    // process triangles (3 vertices per face)
-    for (size_t i = 0; i < vertices.size(); i += 3) {
-
-        Vertex& v0 = vertices[i];
-        Vertex& v1 = vertices[i + 1];
-        Vertex& v2 = vertices[i + 2];
-
-        // edges
-        float e1[3] = {
-            v1.position[0] - v0.position[0],
-            v1.position[1] - v0.position[1],
-            v1.position[2] - v0.position[2]
-        };
-
-        float e2[3] = {
-            v2.position[0] - v0.position[0],
-            v2.position[1] - v0.position[1],
-            v2.position[2] - v0.position[2]
-        };
-
-        // cross product (normal)
-        float n[3] = {
-            e1[1] * e2[2] - e1[2] * e2[1],
-            e1[2] * e2[0] - e1[0] * e2[2],
-            e1[0] * e2[1] - e1[1] * e2[0]
-        };
-
-        // accumulate
-        for (int j = 0; j < 3; j++) {
-            vertices[i].normal[j] += n[j];
-            vertices[i + 1].normal[j] += n[j];
-            vertices[i + 2].normal[j] += n[j];
-        }
-    }
-
-    // normalize
-    for (auto& v : vertices) {
-        float length = sqrt(
-            v.normal[0] * v.normal[0] +
-            v.normal[1] * v.normal[1] +
-            v.normal[2] * v.normal[2]
-        );
-
-        if (length > 0.0f) {
-            v.normal[0] /= length;
-            v.normal[1] /= length;
-            v.normal[2] /= length;
-        }
-    }
-}
-
-void computeNormalss(std::vector<Vertex> &vertices)
-{
-    // initialize normals
-    for (auto &v : vertices)
-    {
-        v.normal[0] = 0.0f;
-        v.normal[1] = 0.0f;
-        v.normal[2] = 0.0f;
-    }
-
-    // process triangles (3 vertices per face)
-    for (size_t i = 0; i + 2 < vertices.size(); i += 3)
-    {
-        Vertex &v0 = vertices[i];
-        Vertex &v1 = vertices[i + 1];
-        Vertex &v2 = vertices[i + 2];
-
-        float e1[3] = {
-            v1.position[0] - v0.position[0],
-            v1.position[1] - v0.position[1],
-            v1.position[2] - v0.position[2]};
-
-        float e2[3] = {
-            v2.position[0] - v0.position[0],
-            v2.position[1] - v0.position[1],
-            v2.position[2] - v0.position[2]};
-
-        float n[3] = {
-            e1[1] * e2[2] - e1[2] * e2[1],
-            e1[2] * e2[0] - e1[0] * e2[2],
-            e1[0] * e2[1] - e1[1] * e2[0]};
-
-        for (int j = 0; j < 3; j++)
-        {
-            v0.normal[j] += n[j];
-            v1.normal[j] += n[j];
-            v2.normal[j] += n[j];
-        }
-    }
-
-    // normalize
-    for (auto &v : vertices)
-    {
-        float length = sqrt(
-            v.normal[0] * v.normal[0] +
-            v.normal[1] * v.normal[1] +
-            v.normal[2] * v.normal[2]);
-
-        if (length > 0.0f)
-        {
-            v.normal[0] /= length;
-            v.normal[1] /= length;
-            v.normal[2] /= length;
-        }
-    }
-}
-
 Mesh ModelLoader::loadOBJ(const std::string &path)
 {
     std::vector<float> positions;
-    std::vector<Vertex> vertices;
+    std::vector<int> faceIndices; // Store face indices for normal computation
 
     std::ifstream file(path);
     std::string line;
@@ -159,24 +42,71 @@ Mesh ModelLoader::loadOBJ(const std::string &path)
                 {
                     for (int j : {0, (int)i, (int)i + 1})
                     {
-                        int vidx = indices[j] - 1;
-                        Vertex v{};
-                        v.position[0] = positions[vidx * 3 + 0];
-                        v.position[1] = positions[vidx * 3 + 1];
-                        v.position[2] = positions[vidx * 3 + 2];
-
-                        // simple normal (placeholder)
-                        v.normal[0] = 0.0f;
-                        v.normal[1] = 1.0f;
-                        v.normal[2] = 0.0f;
-
-                        vertices.push_back(v);
+                        faceIndices.push_back(indices[j] - 1); // OBJ indices are 1-based
                     }
                 }
             }
         }
     }
-    // AFTER building vertices:
-    computeNormals(vertices);
+
+    // Now create vertices with smooth normals
+    std::vector<float> normals(positions.size(), 0.0f);
+
+    // Compute face normals and accumulate at each vertex position
+    for (size_t i = 0; i < faceIndices.size(); i += 3)
+    {
+        int i0 = faceIndices[i];
+        int i1 = faceIndices[i + 1];
+        int i2 = faceIndices[i + 2];
+
+        float v0[3] = {positions[i0 * 3], positions[i0 * 3 + 1], positions[i0 * 3 + 2]};
+        float v1[3] = {positions[i1 * 3], positions[i1 * 3 + 1], positions[i1 * 3 + 2]};
+        float v2[3] = {positions[i2 * 3], positions[i2 * 3 + 1], positions[i2 * 3 + 2]};
+
+        // Compute cross product (face normal)
+        float e1[3] = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
+        float e2[3] = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
+
+        float n[3] = {
+            e1[1] * e2[2] - e1[2] * e2[1],
+            e1[2] * e2[0] - e1[0] * e2[2],
+            e1[0] * e2[1] - e1[1] * e2[0]};
+
+        // Accumulate to all three vertices
+        for (int j = 0; j < 3; j++)
+        {
+            normals[i0 * 3 + j] += n[j];
+            normals[i1 * 3 + j] += n[j];
+            normals[i2 * 3 + j] += n[j];
+        }
+    }
+
+    // Normalize all normals
+    for (size_t i = 0; i < normals.size(); i += 3)
+    {
+        float len = sqrt(normals[i] * normals[i] + normals[i + 1] * normals[i + 1] + normals[i + 2] * normals[i + 2]);
+        if (len > 0.0f)
+        {
+            normals[i] /= len;
+            normals[i + 1] /= len;
+            normals[i + 2] /= len;
+        }
+    }
+
+    // Create final vertex list
+    std::vector<Vertex> vertices;
+    for (size_t i = 0; i < faceIndices.size(); i++)
+    {
+        int idx = faceIndices[i];
+        Vertex v{};
+        v.position[0] = positions[idx * 3 + 0];
+        v.position[1] = positions[idx * 3 + 1];
+        v.position[2] = positions[idx * 3 + 2];
+        v.normal[0] = normals[idx * 3 + 0];
+        v.normal[1] = normals[idx * 3 + 1];
+        v.normal[2] = normals[idx * 3 + 2];
+        vertices.push_back(v);
+    }
+
     return Mesh(vertices);
 }

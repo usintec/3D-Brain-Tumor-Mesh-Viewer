@@ -8,52 +8,43 @@ in vec3 FragPos;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
 
-void main() {
-
+void main(){
+    
     // ----------------------------
     // 1. Normalize inputs
     // ----------------------------
-    vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 lightDir = normalize(lightPos - FragPos);
-
+    vec3 norm=normalize(Normal);
+    vec3 viewDir=normalize(viewPos-FragPos);
+    vec3 lightDir=normalize(lightPos-FragPos);
+    
     // ----------------------------
-    // 2. Basic Lighting
+    // 2. Basic Lighting (Phong)
     // ----------------------------
-    float diff = max(dot(norm, lightDir), 0.0);
-    float ambient = 0.5;
-
-    vec3 baseColor = (ambient + diff) * vec3(0.5, 0.5, 0.5);
-
+    float diff=max(dot(norm,lightDir),0.);
+    float ambient=.35;
+    
+    vec3 baseColor=vec3(.65,.65,.7);
+    vec3 lighting=baseColor*(ambient+diff*.8);
+    
     // ----------------------------
-    // 3. LEVEL 1: Edge Enhancement (Fresnel)
+    // 3. Specular highlight
     // ----------------------------
-    float edge = 1.0 - max(dot(norm, viewDir), 0.0);
-
-    // sharpen edge effect
-    edge = pow(edge, 2.0);
-
-    vec3 edgeColor = vec3(1.0); // white highlight
-
-    vec3 colorWithEdges = mix(baseColor, edgeColor, edge);
-
-
+    vec3 reflectDir=reflect(-lightDir,norm);
+    float spec=pow(max(dot(viewDir,reflectDir),0.),16.);
+    vec3 specColor=vec3(1.,1.,1.)*spec*.4;
+    
     // ----------------------------
-    // 4. LEVEL 2: Curvature Enhancement
+    // 4. Rim highlight (boundary enhancement)
     // ----------------------------
-    float curvature = length(fwidth(norm));
-
-    // amplify curvature
-    curvature = clamp(curvature * 10.0, 0.0, 1.0);
-    //curvature = clamp(curvature * 2.0, 0.0, 1.0);
-
-    vec3 curvatureColor = vec3(1.0, 0.0, 0.0); // red highlight
-
-    vec3 finalColor = mix(colorWithEdges, curvatureColor, curvature);
-
+    float rim=1.-max(dot(norm,viewDir),0.);
+    rim=smoothstep(.3,1.,rim);
+    vec3 rimColor=vec3(.8,.85,1.)*rim*.15;
+    
     // ----------------------------
-    // 5. Output
+    // 5. Final Output
     // ----------------------------
-    FragColor = vec4(finalColor, 1.0);
-    //FragColor = vec4(normalize(Normal)*0.5+0.5, 1.0);
+    vec3 finalColor=lighting+specColor+rimColor;
+    finalColor=clamp(finalColor,0.,1.);
+    
+    FragColor=vec4(finalColor,1.);
 }
