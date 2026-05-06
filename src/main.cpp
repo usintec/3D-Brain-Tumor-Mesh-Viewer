@@ -46,8 +46,8 @@ int main()
                       "wt.obj"});
 
     // Tumor core (tc)
-    //tumors.push_back({ModelLoader::loadOBJ((projectRoot + "\\assets\\tc.obj").c_str()),
-      //                "tc.obj"});
+    tumors.push_back({ModelLoader::loadOBJ((projectRoot + "\\assets\\tc.obj").c_str()),
+                      "tc.obj"});
 
     // Enhanced tumor (et)
     tumors.push_back({ModelLoader::loadOBJ((projectRoot + "\\assets\\et.obj").c_str()),

@@ -13,8 +13,8 @@ vec4 getTumorColor(int c)
 {
     // RGBA (A = transparency)
     if(c==0)return vec4(.7,.7,.7,.3);// tumor_mesh (grey, semi-transparent background)
-    if(c==1)return vec4(1.,0.,0.,.4);// ET (red, more transparent so TC shows)
-    if(c==2)return vec4(1.,.5,0.,.8);// TC (orange, more opaque to be visible)
+    if(c==1)return vec4(1.,0.,0.,.9);// ET (red, more transparent so TC shows)
+    if(c==2)return vec4(0.,.5,0.,.9);// TC (orange, more opaque to be visible)
     if(c==3)return vec4(0.,.5,1.,.2);// WT (blue very transparent)
     
     return vec4(1.);
