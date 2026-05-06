@@ -55,9 +55,9 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\Mesh.frag" />
     <None Include="shaders\Mesh.vert" />
     <None Include=".gitignore" />
     <None Include="OldMesh.frag" />
+    <None Include="shaders\Mesh.frag" />
   </ItemGroup>
 </Project>

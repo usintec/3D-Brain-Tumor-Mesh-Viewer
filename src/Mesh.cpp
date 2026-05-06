@@ -29,4 +29,5 @@ Mesh::Mesh(std::vector<Vertex> verts) {
 void Mesh::draw() {
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+    //glDrawElements(GL_TRIANGLES, vertices.size(), GL_UNSIGNED_INT, 0);
 }

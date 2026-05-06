@@ -21,9 +21,9 @@ void main() {
     // 2. Basic Lighting
     // ----------------------------
     float diff = max(dot(norm, lightDir), 0.0);
-    float ambient = 0.2;
+    float ambient = 0.5;
 
-    vec3 baseColor = (ambient + diff) * vec3(1.0, 0.5, 0.3);
+    vec3 baseColor = (ambient + diff) * vec3(0.5, 0.5, 0.5);
 
     // ----------------------------
     // 3. LEVEL 1: Edge Enhancement (Fresnel)
@@ -31,7 +31,7 @@ void main() {
     float edge = 1.0 - max(dot(norm, viewDir), 0.0);
 
     // sharpen edge effect
-    edge = pow(edge, 3.0);
+    edge = pow(edge, 2.0);
 
     vec3 edgeColor = vec3(1.0); // white highlight
 
@@ -44,7 +44,7 @@ void main() {
     float curvature = length(fwidth(norm));
 
     // amplify curvature
-    curvature = clamp(curvature * 5.0, 0.0, 1.0);
+    curvature = clamp(curvature * 10.0, 0.0, 1.0);
     //curvature = clamp(curvature * 2.0, 0.0, 1.0);
 
     vec3 curvatureColor = vec3(1.0, 0.0, 0.0); // red highlight
@@ -55,4 +55,5 @@ void main() {
     // 5. Output
     // ----------------------------
     FragColor = vec4(finalColor, 1.0);
+    //FragColor = vec4(normalize(Normal)*0.5+0.5, 1.0);
 }

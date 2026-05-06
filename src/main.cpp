@@ -21,13 +21,17 @@ int main()
     std::string filePath = __FILE__;
     size_t srcPos = filePath.find("\\src");
     std::string projectRoot = filePath.substr(0, srcPos);
-    std::string modelPath = projectRoot + "\\assets\\tum.obj";
+    std::string modelPath = projectRoot + "\\assets\\tumor_mesh.obj";
     std::string vertPath = projectRoot + "\\shaders\\Mesh.vert";
     std::string fragPath = projectRoot + "\\shaders\\Mesh.frag";
 
     Mesh mesh = ModelLoader::loadOBJ(modelPath);
     Shader shader(vertPath.c_str(), fragPath.c_str());
     Camera camera;
+
+    camera.position[0] = 0.0f;
+    camera.position[1] = 0.0f;
+    camera.position[2] = 5.0f;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -46,18 +50,30 @@ int main()
         shader.setMat4("view", camera.getViewMatrix());
         shader.setMat4("projection", camera.getProjectionMatrix(aspect));
 
+        float s = 0.01f;
         // model rotation
         float angle = glfwGetTime();
-
-        float model[16] = {
+        
+        /*float model[16] = {
             cos(angle), 0, sin(angle), 0,
             0, 1, 0, 0,
             -sin(angle), 0, cos(angle), 0,
-            0, 0, 0, 1};
+            0, 0, 0, 1};*/
+
+        float model[16] = {
+            s * cos(angle), 0, s * sin(angle), 0,
+            0,            s, 0,            0,
+           -s * sin(angle), 0, s * cos(angle), 0,
+            0,            0, 0,            1
+        };
 
         shader.setMat4("model", model);
 
-        shader.setVec3("lightPos", 2.0f, 2.0f, 2.0f);
+        shader.setVec3("lightPos",
+                       camera.position[0],
+                       camera.position[1],
+                       camera.position[2]);
+
         shader.setVec3("viewPos",
                        camera.position[0],
                        camera.position[1],

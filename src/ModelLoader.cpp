@@ -63,6 +63,63 @@ void computeNormals(std::vector<Vertex>& vertices) {
     }
 }
 
+void computeNormalss(std::vector<Vertex> &vertices)
+{
+    // initialize normals
+    for (auto &v : vertices)
+    {
+        v.normal[0] = 0.0f;
+        v.normal[1] = 0.0f;
+        v.normal[2] = 0.0f;
+    }
+
+    // process triangles (3 vertices per face)
+    for (size_t i = 0; i + 2 < vertices.size(); i += 3)
+    {
+        Vertex &v0 = vertices[i];
+        Vertex &v1 = vertices[i + 1];
+        Vertex &v2 = vertices[i + 2];
+
+        float e1[3] = {
+            v1.position[0] - v0.position[0],
+            v1.position[1] - v0.position[1],
+            v1.position[2] - v0.position[2]};
+
+        float e2[3] = {
+            v2.position[0] - v0.position[0],
+            v2.position[1] - v0.position[1],
+            v2.position[2] - v0.position[2]};
+
+        float n[3] = {
+            e1[1] * e2[2] - e1[2] * e2[1],
+            e1[2] * e2[0] - e1[0] * e2[2],
+            e1[0] * e2[1] - e1[1] * e2[0]};
+
+        for (int j = 0; j < 3; j++)
+        {
+            v0.normal[j] += n[j];
+            v1.normal[j] += n[j];
+            v2.normal[j] += n[j];
+        }
+    }
+
+    // normalize
+    for (auto &v : vertices)
+    {
+        float length = sqrt(
+            v.normal[0] * v.normal[0] +
+            v.normal[1] * v.normal[1] +
+            v.normal[2] * v.normal[2]);
+
+        if (length > 0.0f)
+        {
+            v.normal[0] /= length;
+            v.normal[1] /= length;
+            v.normal[2] /= length;
+        }
+    }
+}
+
 Mesh ModelLoader::loadOBJ(const std::string &path)
 {
     std::vector<float> positions;
