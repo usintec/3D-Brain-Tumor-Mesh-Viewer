@@ -58,7 +58,7 @@ int main()
 
     camera.position[0] = 0.0f;
     camera.position[1] = 0.0f;
-    camera.position[2] = 5.0f;
+    camera.position[2] = 10.0f;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -77,7 +77,7 @@ int main()
         shader.setMat4("view", camera.getViewMatrix());
         shader.setMat4("projection", camera.getProjectionMatrix(aspect));
 
-        float s = 0.01f;
+        float s = 0.02f;
         // model rotation
         float angle = glfwGetTime();
 
@@ -95,17 +95,17 @@ int main()
             model[0] * lightPosWorld[0] + model[4] * lightPosWorld[1] + model[8] * lightPosWorld[2] + model[12],
             model[1] * lightPosWorld[0] + model[5] * lightPosWorld[1] + model[9] * lightPosWorld[2] + model[13],
             model[2] * lightPosWorld[0] + model[6] * lightPosWorld[1] + model[10] * lightPosWorld[2] + model[14]};
-
+            
         shader.setVec3("lightPos", lightPosModel[0], lightPosModel[1], lightPosModel[2]);
-
+        
         shader.setVec3("viewPos",
                        camera.position[0],
                        camera.position[1],
                        camera.position[2]);
 
-        // Draw each tumor mesh in correct layering order: ET (innermost) -> TC -> WT -> background
+        // Draw each tumor mesh in correct layering order: TC (back) -> ET (front) -> WT -> background
         glDepthMask(GL_FALSE); // Disable depth writing for transparent objects
-        std::vector<std::string> renderOrder = {"et.obj", "tc.obj", "wt.obj", "tumor_mesh.obj"};
+        std::vector<std::string> renderOrder = { "et.obj", "tc.obj", "wt.obj", "tumor_mesh.obj"};
         for (const auto &meshName : renderOrder)
         {
             auto it = std::find_if(tumors.begin(), tumors.end(),
