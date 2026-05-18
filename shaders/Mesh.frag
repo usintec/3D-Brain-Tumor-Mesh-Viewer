@@ -11,11 +11,14 @@ uniform int tumorClass;
 
 vec4 getTumorColor(int c)
 {
-    // RGBA (A = transparency) - TC renders first (back), ET on top (semi-transparent)
-    if(c==0)return vec4(.7,.7,.7,.3);// tumor_mesh (grey, semi-transparent background)
-    if(c==1)return vec4(1.,0.,0.,.9);// ET (red, semi-transparent so TC visible through)
-    if(c==2)return vec4(0.,.5,0.,.2);// TC (orange, solid core)
-    if(c==3)return vec4(0.,.5,1.,.2);// WT (blue very transparent)
+
+    if(c==0)return vec4(.7,.7,.7,.08); // brain shell
+
+    if(c==3)return vec4(0.,.5,1.,.15); // WT
+
+    if(c==2)return vec4(1.,.7,0.,.35); // TC
+
+    if(c==1)return vec4(1.,0.,0.,.85); // ET
     
     return vec4(1.);
 }
