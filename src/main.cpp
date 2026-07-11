@@ -14,6 +14,7 @@
 #include "Headers/Mesh.h"
 #include "Headers/ModelLoader.h"
 #include "Headers/Camera.h"
+#include "Headers/Evaluation.h"
 
 struct TumorMesh
 {
@@ -212,14 +213,74 @@ int main()
             modelZoom +=
             zoomSpeed * deltaTime;
 
+        // ----------------------------------
+        // FPS Evaluation
+        // ----------------------------------
+
+        float fps =
+            Evaluation::computeFPS(
+                deltaTime
+            );
+
+        std::cout
+            << "FPS: "
+            << fps
+            << std::endl;
+
+        // ----------------------------------
+       // Gradient Evaluation
+       // ----------------------------------
+        float grad =
+        Evaluation::gradientMagnitude(
+            4.2f,
+            3.1f
+        );
+
+        std::cout
+            << "Gradient: "
+            << grad
+            << std::endl;
+
+        // ----------------------------------
+       // Edge Visibility Evaluation
+       // ----------------------------------
+        float edge =
+            Evaluation::edgeVisibility(
+                0.3f
+            );
+
+        std::cout
+            << "Edge Visibility: "
+            << edge
+            << std::endl;
+
+        // ----------------------------------
+       // Silhouette Evaluation
+       // ----------------------------------
+        
+        std::vector<float> silhouetteValues =
+        {
+            0.72f,
+            0.81f,
+            0.78f,
+            0.84f
+        };
+
+        float silhouette =
+            Evaluation::silhouetteVisibility(
+                silhouetteValues
+            );
+
+        std::cout
+            << "Silhouette Visibility: "
+            << silhouette
+            << std::endl;
         //-----------------------------------
         // Clear Screen
         //-----------------------------------
 
         glClearColor(
-            0.05f,
-            0.05f,
-            0.05f,
+            0.01f, 0.01f, 0.015f,
             1.0f);
 
         glClear(
@@ -231,6 +292,10 @@ int main()
         //-----------------------------------
 
         shader.use();
+        shader.setFloat(
+            "time",
+            glfwGetTime()
+        );
 
         //-----------------------------------
         // Viewport

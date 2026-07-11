@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\Camera.h" />
+    <ClInclude Include="src\Headers\Evaluation.h" />
     <ClInclude Include="src\Headers\Mesh.h" />
     <ClInclude Include="src\Headers\ModelLoader.h" />
     <ClInclude Include="src\Headers\Renderer.h" />
