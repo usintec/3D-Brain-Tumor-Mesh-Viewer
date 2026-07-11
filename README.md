@@ -8,19 +8,29 @@ This project loads multiple OBJ meshes representing tumor segmentation regions a
 
 ## Table of Contents
 
-- [Features](#features)
-- [Supported Meshes](#supported-meshes)
-- [How It Works](#how-it-works)
-- [Controls](#controls)
-- [Build and Run](#build-and-run)
-- [Project Structure](#project-structure)
-- [Asset and Shader Paths](#asset-and-shader-paths)
-- [Development Notes](#development-notes)
-- [Troubleshooting](#troubleshooting)
-- [Future Improvements](#future-improvements)
+- [3D Brain Tumor Mesh Viewer](#3d-brain-tumor-mesh-viewer)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [Supported Meshes](#supported-meshes)
+    - [Render Order and Visibility](#render-order-and-visibility)
+  - [How It Works](#how-it-works)
+  - [Controls](#controls)
+  - [Build and Run](#build-and-run)
+    - [Prerequisites](#prerequisites)
+    - [Build using Visual Studio](#build-using-visual-studio)
+    - [Build using MSBuild](#build-using-msbuild)
+    - [Running the Viewer](#running-the-viewer)
+  - [Project Structure](#project-structure)
+  - [Asset and Shader Paths](#asset-and-shader-paths)
+  - [Development Notes](#development-notes)
+  - [Troubleshooting](#troubleshooting)
+    - [Common issues](#common-issues)
+    - [Debugging tips](#debugging-tips)
+  - [Future Improvements](#future-improvements)
 
 ---
-
+![alt text](image.png)
+![alt text](image-1.png)
 ## Features
 
 - Loads and displays multiple segmented tumor meshes in one scene
